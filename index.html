@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang='en'>
+
+<head>
+	<title>Com&Psi; Apps</title>
+    <meta http-equiv='content-type' content='text/html; charset=utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <link rel='stylesheet' type='text/css' href='style/bootstrap.min.css'>
+    <link rel='stylesheet' type='text/css' href='style/main.css'>
+    <script src='js/video_player.js'></script>
+</head>
+
+<body class='d-flex flex-column h-100'>
+	<div id='ffmpeg-command'></div>
+<div>
+	Source directory where the videos sit: 
+		<input id="srcdir" type="text" /> <br/>
+Speed:
+  <select id="output-speed">
+    <option value="100" selected="selected">100%</option>
+    <option value="50">50%</option>
+    <option value="33">33%</option>
+    <option value="25">25%</option>
+  </select>  <br/>
+	Output dir: <input id="output-dir" type="text" /> 
+	Output filepath (basename): <input id="output-basename" type="text" /> 
+  		<br/>
+
+
+	<div id='vidpaths'>
+	</div>
+</div>
+<div class='annotation-main-container container-fluid d-flex h-100 align-items-center justify-content-center'>
+
+	<div id='myHTMLWrapper'  style='position: relative;'>
+	</div>
+</div>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+	  const num_videos = parseInt(urlParams.get('num_videos'));
+	  const input_dir = urlParams.get('input_dir');
+	  const output_dir = urlParams.get('output_dir');
+	  document.getElementById("output-dir").value = output_dir;
+	  document.getElementById("srcdir").value = input_dir;
+
+	  console.log(input_dir);
+	  
+	  var vidpaths = document.getElementById("vidpaths");
+	  var wrapper = document.getElementById("myHTMLWrapper");
+
+	  var myHTML = '';
+	  var vidpaths_html = '';
+
+	  for (var i = 0; i<num_videos; i++) {
+	  	vidpaths_html += `Video ${i+1}: <input id="upload${i}" type="file" /> <br/>`;
+
+
+	    myHTML += `<div class='video-container'><div class='main-video'><video id='video${i}' width='100%'><source id='source${i}'></video></div></div>
+        <div class='video-controls'>
+            <button id='btn-play${i}'>Play</button>
+            <span id='time-cur${i}'>00:00:00</span> / <span id='time-dur${i}'>00:00</span>
+        </div>
+
+        <div class='video-controls'>
+            <input class='video-slider' id='video-main-slider${i}' type='range' min='0' max='1000' value='0' step='1'>
+        </div>
+
+        <div class='video-controls'>
+            <button id='btn-backward10${i}'><<</button>
+            <button id='btn-backward1${i}'><</button>
+            <button id='btn-forward1${i}'>></button>
+            <button id='btn-forward10${i}'>>></button>
+        </div>
+
+        <div class='video-controls' id='region-controls'>
+            <button class='btn-event' onclick='playActiveRegion()'>Play</button>
+            <button class='btn-event' onclick='updateRegionStart()'>Edit-Start</button>
+            <button class='btn-event' onclick='updateRegionStop()'>Edit-Stop</button>
+            <button class='btn-event' onclick='deleteRegion()'>Delete</button>
+        </div>
+
+        <div class='annotation-container' id='annotation-container${i}'>
+            <div class='annotation-label' id='annotation-label${i}'>Video ${i+1} </div>
+            <div class='annotation-canvas-stack' id='annotation-canvas-stack${i}'>
+                <canvas class='annotation-canvas' id='annotation-canvas${i}' width='931' height='46'></canvas>
+                <canvas class='annotation-canvas-slider' id='annotation-canvas-slider${i}' width='931' height='46' onclick='releaseActiveRegion()'></canvas>
+            </div>
+            <div class='annotation-controls'>
+                <button class='btn-event generic-controls' onclick='eventMarkStart(${i})'>Start</button>
+                <button class='btn-event generic-controls' onclick='eventMarkEnd(${i})'>End</button>
+                <button class='btn-event generic-controls' onclick='eventDelete(${i})'>Delete</button>
+            </div>
+        </div>`
+	  }
+
+	  wrapper.innerHTML = myHTML
+	  vidpaths.innerHTML = vidpaths_html;
+
+	</script>
+
+	<div>
+	    <form action='' method='post'>
+	        <input type='hidden' name='annotated-regions' id='annotation-result' value='' />
+	        <input type='submit' class='btn btn-primary' name='submitAnnotation' value='Submit' onclick='return populateAllAnnotations()' />
+	    </form>
+	</div>
+
+	<script src='js/bootstrap.bundle.min.js'></script>
+	<script src='js/video_annotator.js'></script>
+
+	<div>Copyright</div>
+</body>
